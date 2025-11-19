@@ -19,7 +19,7 @@ export class UploadsService {
     const form = new FormData();
     form.append('file', file.buffer, file.originalname);
 
-    const gateway = process.env.CRUST_IPFS_GATEWAY; // https://gw.crustfiles.app
+    const gateway = 'https://gw.crustfiles.app'; // https://gw.crustfiles.app
     const addUrl = `${gateway}/api/v0/add`;
 
     // ----------- 1) Upload to Crust Gateway --------------
@@ -41,7 +41,7 @@ export class UploadsService {
     const url = `${gateway}/ipfs/${cid}`;
 
     // ----------- 2) Optional — Pin to Crust Pinning Service --------------
-    const pinService = process.env.CRUST_PINNING_SERVICE; // e.g., https://pin.crustcode.com/psa
+    const pinService = 'https://pin.crustcode.com/psa'; // e.g., https://pin.crustcode.com/psa
 
     if (pinService) {
       const pinUrl = `${pinService}/pins`;
