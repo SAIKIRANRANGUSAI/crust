@@ -3,21 +3,18 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 
 @Injectable()
 export class CrustService {
-  private api: ApiPromise;
-
-  async connect() {
-    if (!this.api) {
-      const provider = new WsProvider(process.env.CRUST_CHAIN_URL);
-      this.api = await ApiPromise.create({ provider });
-    }
-    return this.api;
-  }
-
   async getWalletBalance(address: string) {
-    const api = await this.connect();
+    // Create provider for each request (Render-safe)
+    const provider = new WsProvider(process.env.CRUST_CHAIN_URL);
+
+    // Create API instance
+    const api = await ApiPromise.create({ provider });
 
     const account: any = await api.query.system.account(address);
-    const data = account.data; // FIXED
+    const data = account.data;
+
+    // IMPORTANT: disconnect to avoid hanging
+    await api.disconnect();
 
     return {
       free: data.free.toHuman(),
