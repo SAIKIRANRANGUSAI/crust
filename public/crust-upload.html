@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crust File Uploader</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .upload-container {
+    background: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    width: 380px;
+    text-align: center;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .file-input {
+    margin: 18px 0;
+  }
+
+  input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #bbb;
+    border-radius: 8px;
+    background: #fafafa;
+    cursor: pointer;
+  }
+
+  button {
+    margin-top: 18px;
+    width: 100%;
+    background: #157efb;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: #0f6bd6;
+  }
+
+  #status {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #444;
+  }
+
+  .success {
+    color: green;
+    font-weight: bold;
+  }
+
+  .error {
+    color: #d00;
+    font-weight: bold;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="upload-container">
+  <h2>Upload to Crust Storage</h2>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <div class="file-input">
+      <input type="file" name="file" id="fileInput" required />
+    </div>
+    <button type="submit">Upload File</button>
+  </form>
+
+  <div id="status"></div>
+</div>
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById("fileInput");
+  const statusDiv = document.getElementById("status");
+
+  if (fileInput.files.length === 0) {
+    statusDiv.innerHTML = "<p class='error'>Please select a file.</p>";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  statusDiv.innerHTML = "Uploading... Please wait.";
+
+  try {
+    const response = await fetch("http://localhost:3000/crust-upload/file", {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.cid) {
+      statusDiv.innerHTML =
+        `<p class='success'>Upload Successful!</p>
+         <p><strong>CID:</strong> ${result.cid}</p>
+         <p><a href="${result.url}" target="_blank">Open File</a></p>`;
+    } else {
+      statusDiv.innerHTML = "<p class='error'>Upload failed.</p>";
+    }
+
+  } catch (error) {
+    statusDiv.innerHTML = "<p class='error'>Error uploading file.</p>";
+    console.error("Upload Error:", error);
+  }
+});
+</script>
+
+</body>
+</html>
